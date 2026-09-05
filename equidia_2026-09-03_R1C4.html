@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARENBERG · racing-ai</title>
+<!-- APPLICATION INSTALLABLE (PWA). Trois lignes suffisent la ou une application
+     native aurait demande deux chantiers, deux magasins et deux signatures — et
+     n'aurait rien resolu de plus : les donnees vivent sur le PC dans les deux
+     cas. Ici le telephone pose une icone sur l'ecran d'accueil, ouvre en plein
+     ecran sans barre de navigateur, et garde les pages deja vues quand le
+     reseau tombe. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<style>
+:root {
+  --bg:#fbfbfc; --surface:#ffffff; --fg:#16181d; --fg-2:#4a5058; --muted:#868e99;
+  --line:#e4e7ec; --line-2:#eef0f3;
+  --accent:#2563eb; --accent-soft:#eff5ff;
+  --good:#0f8a4c; --good-soft:#e8f6ee;
+  --bad:#c8332b; --bad-soft:#fdeceb;
+  --warn:#9a6212; --warn-soft:#fdf5e4; --warn-line:#e8c98a;
+  --p1:#dbe8fe; --p2:#2563eb;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#0d0f13; --surface:#14171d; --fg:#e8eaee; --fg-2:#aeb6c2; --muted:#7b8492;
+    --line:#242932; --line-2:#1c2027;
+    --accent:#5b91ff; --accent-soft:#16233d;
+    --good:#3fbf7f; --good-soft:#10281c;
+    --bad:#f0736a; --bad-soft:#2d1614;
+    --warn:#e0a63a; --warn-soft:#2a2113; --warn-line:#584a29;
+    --p1:#1b2c4d; --p2:#3b7bf0;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0d0f13; --surface:#14171d; --fg:#e8eaee; --fg-2:#aeb6c2; --muted:#7b8492;
+  --line:#242932; --line-2:#1c2027; --accent:#5b91ff; --accent-soft:#16233d;
+  --good:#3fbf7f; --good-soft:#10281c; --bad:#f0736a; --bad-soft:#2d1614;
+  --warn:#e0a63a; --warn-soft:#2a2113; --p1:#1b2c4d; --p2:#3b7bf0;
+}
+:root[data-theme="light"] {
+  --bg:#fbfbfc; --surface:#ffffff; --fg:#16181d; --fg-2:#4a5058; --muted:#868e99;
+  --line:#e4e7ec; --line-2:#eef0f3; --accent:#2563eb; --accent-soft:#eff5ff;
+  --good:#0f8a4c; --good-soft:#e8f6ee; --bad:#c8332b; --bad-soft:#fdeceb;
+  --warn:#9a6212; --warn-soft:#fdf5e4; --p1:#dbe8fe; --p2:#2563eb;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  margin:0; background:var(--bg); color:var(--fg);
+  font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+       "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1240px; margin:0 auto; padding:0 24px 72px; }
+
+/* ---------- en-tete ---------- */
+header.top {
+  position:sticky; top:0; z-index:20; margin:0 -24px 4px; padding:0 24px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(1.6) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+header.top .row { display:flex; align-items:center; gap:26px; height:56px; }
+.brand { font-weight:640; letter-spacing:-.015em; font-size:15px; white-space:nowrap; }
+.brand .dot { color:var(--accent); }
+header.top nav { display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+header.top nav::-webkit-scrollbar { display:none; }
+header.top nav a {
+  color:var(--muted); text-decoration:none; font-size:13.5px; font-weight:500;
+  padding:6px 10px; border-radius:7px; white-space:nowrap; transition:.12s;
+}
+header.top nav a:hover { color:var(--fg); background:var(--line-2); }
+header.top nav a.on { color:var(--accent); background:var(--accent-soft); }
+
+/* ---------- titres ---------- */
+h1 { font-size:25px; font-weight:640; letter-spacing:-.02em; margin:26px 0 4px; }
+h2 { font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+     color:var(--muted); margin:34px 0 12px; }
+h3 { font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+     color:var(--muted); margin:0 0 8px; }
+p { margin:0 0 12px; }
+.sub { color:var(--fg-2); font-size:14px; max-width:76ch; }
+.sub.tight { margin-bottom:16px; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+/* ---------- bandeau ---------- */
+.banner {
+  border:1px solid var(--warn-line); border-left:3px solid var(--warn);
+  background:var(--warn-soft); color:var(--fg-2);
+  padding:11px 15px; border-radius:var(--radius); font-size:13.5px;
+  margin:16px 0; line-height:1.5;
+}
+.banner strong { color:var(--warn); font-weight:620; }
+.banner ul { margin:8px 0 0; padding-left:18px; }
+/* Meme bandeau, ton positif : une operation qui a REUSSI ne doit pas porter
+   la couleur d'un avertissement, sinon l'avertissement ne veut plus rien dire. */
+.banner.ok { border-color:var(--good); border-left-color:var(--good);
+             background:var(--good-soft); }
+.banner.ok strong { color:var(--good); }
+
+/* ---------- cartes ---------- */
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr));
+         gap:12px; margin:18px 0 6px; }
+.card {
+  border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px;
+  background:var(--surface); box-shadow:var(--shadow);
+}
+.card .k { color:var(--muted); font-size:11px; font-weight:600;
+           text-transform:uppercase; letter-spacing:.06em; }
+.card .v { font-size:24px; font-weight:600; letter-spacing:-.02em; margin-top:3px;
+           line-height:1.15; }
+.card .n { color:var(--muted); font-size:12px; margin-top:3px; }
+
+/* ---------- tableaux ---------- */
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius);
+          background:var(--surface); box-shadow:var(--shadow); }
+table { width:100%; border-collapse:collapse; font-size:13.5px; }
+th, td { text-align:right; padding:9px 12px; border-bottom:1px solid var(--line-2); }
+thead th {
+  background:var(--surface);
+  color:var(--muted); font-weight:600; font-size:10.5px; letter-spacing:.06em;
+  text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--line);
+}
+/* PAS d'en-tete collant, et c'est un choix, pas un oubli.
+   `.scroll` porte `overflow-x:auto` ; la specification fait alors passer
+   `overflow-y` de `visible` a `auto`, donc .scroll DEVIENT le conteneur de
+   defilement. Un `top:56px` — pense pour se caler sous la barre de navigation
+   de la page — se mesurait des lors depuis le haut DU TABLEAU : l'en-tete
+   descendait de 56 px et recouvrait le premier partant, en permanence. On
+   voyait sa pastille et ses barres depasser, et son « detail » orphelin.
+   Rendre l'en-tete reellement collant imposerait de retirer le defilement
+   horizontal, donc de laisser treize colonnes deborder la page. Entre un
+   confort de lecture et une ligne de donnees invisible, on garde la donnee. */
+table.collante thead th { position:static; }
+tbody tr:last-child td { border-bottom:none; }
+/* LES COURSES QU'ON JOUE. Le programme LONAB est la source de ce qui se mise
+   ici ; le reste du calendrier est du contexte. La distinction doit se lire
+   sans effort, donc elle passe par le FOND de la ligne et une barre a gauche,
+   pas par une etiquette de plus dans une colonne deja chargee. La teinte reste
+   faible : elle doit guider l'oeil, pas concurrencer l'edge, qui est le seul
+   endroit ou la couleur porte un jugement. */
+tbody tr.jouable td { background:var(--accent-soft); }
+tbody tr.jouable td:first-child { box-shadow:inset 3px 0 0 var(--accent); }
+tbody tr.jouable:hover td { background:color-mix(in srgb, var(--accent-soft) 70%, var(--line-2)); }
+.tag.lonab { background:var(--accent); color:#fff; border-color:transparent;
+             font-size:9.5px; letter-spacing:.05em; }
+td.l, th.l { text-align:left; }
+tr.runner:hover td { background:var(--line-2); }
+tr.runner td { padding-top:10px; padding-bottom:10px; }
+.num { display:inline-flex; align-items:center; justify-content:center;
+       min-width:23px; height:23px; border-radius:6px; background:var(--line-2);
+       color:var(--fg-2); font-size:12px; font-weight:620; }
+.nom { font-weight:560; }
+.idx { color:var(--muted); font-size:12.5px; }
+
+/* barre de probabilite : la colonne qui doit se balayer sans lire */
+.bar { position:relative; display:block; min-width:62px; height:22px;
+       border-radius:5px; overflow:hidden; background:var(--line-2); }
+.bar .fill { position:absolute; inset:0 auto 0 0; background:var(--p1); }
+.bar .fill.strong { background:var(--p2); }
+.bar .txt { position:relative; display:block; padding:2px 7px; font-weight:560;
+            font-variant-numeric:tabular-nums; }
+.bar .fill.strong ~ .txt { color:#fff; }
+
+.pos { color:var(--good); font-weight:560; }
+.neg { color:var(--bad); }
+.pill { display:inline-block; padding:2px 8px; border-radius:99px; font-size:11.5px;
+        font-weight:600; letter-spacing:.02em; }
+.pill.go { background:var(--good-soft); color:var(--good); }
+.pill.no { background:var(--line-2); color:var(--muted); }
+.pill.risk { background:var(--bad-soft); color:var(--bad); }
+.tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:99px;
+       border:1px solid var(--line); color:var(--muted); margin-left:6px; }
+
+/* ---------- detail deplie ---------- */
+details { border-top:1px dashed var(--line); background:var(--bg); }
+details summary { cursor:pointer; padding:7px 12px; color:var(--muted);
+                  font-size:12.5px; list-style:none; user-select:none; }
+details summary::-webkit-details-marker { display:none; }
+details summary::before { content:"›"; display:inline-block; width:14px;
+                          transition:transform .15s; font-size:15px; }
+details[open] summary::before { transform:rotate(90deg); }
+details summary:hover { color:var(--accent); }
+.detail { padding:6px 22px 20px; }
+.detail p { margin:7px 0; font-size:13.5px; color:var(--fg-2); }
+.shap { display:grid; grid-template-columns:1fr auto; gap:3px 16px; max-width:620px;
+        margin:8px 0 14px; }
+.shap .lab { font-size:13px; }
+.shap .val { font-variant-numeric:tabular-nums; font-size:13px; font-weight:560; }
+
+/* ---------- formulaires ---------- */
+form.search { display:flex; gap:8px; margin:16px 0 24px; flex-wrap:wrap; }
+input, button, select, textarea {
+  font:inherit; padding:8px 12px; border:1px solid var(--line);
+  border-radius:8px; background:var(--surface); color:var(--fg);
+}
+input:focus, textarea:focus, select:focus {
+  outline:none; border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+button { cursor:pointer; font-weight:560; background:var(--accent); color:#fff;
+         border-color:transparent; padding:8px 16px; }
+button:hover { filter:brightness(1.07); }
+input[type=file] { padding:6px 10px; }
+textarea { width:100%; min-height:230px; resize:vertical;
+           font:13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+pre.exemple { background:var(--surface); border:1px solid var(--line);
+              border-radius:var(--radius); padding:13px 15px; overflow-x:auto;
+              font:12.5px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+              color:var(--fg-2); box-shadow:var(--shadow); }
+code { background:var(--line-2); padding:1.5px 5px; border-radius:5px;
+       font:12.5px ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+/* ---------- divers ---------- */
+ul.liste { list-style:none; padding:0; margin:6px 0; }
+ul.liste li { padding:9px 13px; border:1px solid var(--line); border-radius:9px;
+              background:var(--surface); margin-bottom:7px; font-size:14px;
+              box-shadow:var(--shadow); }
+.cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+        gap:24px; margin-top:8px; }
+.empty { color:var(--muted); padding:28px 0; font-size:14px; }
+.ident { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; font-size:14px;
+         margin:6px 0 14px; }
+.ident .k { color:var(--muted); }
+.arrivee { font-variant-numeric:tabular-nums; font-size:15px; }
+.arrivee b { display:inline-flex; align-items:center; justify-content:center;
+             min-width:32px; height:30px; border:1px solid var(--line);
+             border-radius:8px; margin-right:6px; font-weight:620;
+             background:var(--surface); }
+.arrivee b.hit { border-color:var(--good); color:var(--good); background:var(--good-soft); }
+.arrivee b.miss { border-color:var(--line); color:var(--muted); }
+footer { color:var(--muted); font-size:12.5px; border-top:1px solid var(--line);
+         margin-top:52px; padding-top:18px; line-height:1.6; }
+footer strong { color:var(--fg-2); }
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="row">
+  <span class="brand">racing<span class="dot">·</span>ai</span>
+  <nav><a href="index.html" class="on">Analyses publiées</a><span class="tag" style="margin-left:12px">lecture seule</span></nav>
+</div></header>
+<h1>ARENBERG</h1><p class="sub">2026-09-03 · Longchamp · modèle <code>galop_plat-carte-2026-07-26-86-2f64162e</code></p><div class="banner ok"><strong>Instantané produit le 05/09/2026 à 15:04</strong> — il y a moins d'une heure. Ces pages ne bougent plus depuis. Les probabilités du modèle restent valables — il ne voit jamais les cotes — mais <strong>l'edge et les mises affichés vieillissent avec le marché</strong>. Avant de miser, vérifier la cote réelle.</div><h2>Prévision contre arrivée</h2><div class="ident" style="grid-template-columns:auto 1fr;gap:10px 18px"><div class="k">Prévision</div><div class="arrivee"><b class="hit">3</b><b class="hit">4</b><b class="hit">2</b><b class="hit">1</b><b class="hit">5</b></div><div class="k">Arrivée</div><div class="arrivee"><b>2</b><b>3</b><b>5</b><b>4</b><b>1</b></div></div><p class="sub">Score de Brier sur la course : 0.1682</p><h2>Partants</h2><div class="scroll"><table><thead><tr><th class="">num</th><th class="l">cheval_nom</th><th class="l">driver_nom</th><th class="">p_gagne</th><th class="">p_top3</th><th class="">risque_da</th><th class="">mkt_cote</th><th class="">edge</th><th class="">mise</th><th class="">place</th><th class="">incident</th></tr></thead><tbody><tr><td class="">3</td><td class="l">VOLLERING</td><td class="l">P.JAMIN</td><td class="">24.3 %</td><td class="">68.0 %</td><td class="">0.0000</td><td class="">—</td><td class="">—</td><td class="">—</td><td class="">2</td><td class="">—</td></tr><tr><td class="">4</td><td class="l">VALENTINA BELLA</td><td class="l">C.SOUMILLON</td><td class="">22.9 %</td><td class="">65.2 %</td><td class="">0.0000</td><td class="">—</td><td class="">—</td><td class="">—</td><td class="">4</td><td class="">—</td></tr><tr><td class="">2</td><td class="l">DRAZINDA</td><td class="l">M.BARZALONA</td><td class="">18.2 %</td><td class="">55.4 %</td><td class="">0.0000</td><td class="">—</td><td class="">—</td><td class="">—</td><td class="">1</td><td class="">—</td></tr><tr><td class="">1</td><td class="l">GRAYROBIN</td><td class="l">CD.HAYES</td><td class="">18.1 %</td><td class="">56.9 %</td><td class="">0.0000</td><td class="">—</td><td class="">—</td><td class="">—</td><td class="">5</td><td class="">—</td></tr><tr><td class="">5</td><td class="l">ARMOR SUPREME</td><td class="l">PC.BOUDOT</td><td class="">16.5 %</td><td class="">54.4 %</td><td class="">0.0000</td><td class="">—</td><td class="">—</td><td class="">—</td><td class="">3</td><td class="">—</td></tr></tbody></table></div>
+<footer>
+Outil d'analyse local. Les <strong>probabilités</strong> sont calibrées et mesurées ;
+les <strong>indices</strong> (fiabilité, performance, confiance) sont des constructions
+dont la formule est dans <code>racing/models/model.py</code>.
+<strong>Ce système n'a pas démontré de rentabilité</strong> — voir §12 du brief.
+Ce n'est pas un conseil de mise.
+</footer>
+</div></body></html>
