@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>racing·ai · racing-ai</title>
+<!-- APPLICATION INSTALLABLE (PWA). Trois lignes suffisent la ou une application
+     native aurait demande deux chantiers, deux magasins et deux signatures — et
+     n'aurait rien resolu de plus : les donnees vivent sur le PC dans les deux
+     cas. Ici le telephone pose une icone sur l'ecran d'accueil, ouvre en plein
+     ecran sans barre de navigateur, et garde les pages deja vues quand le
+     reseau tombe. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<style>
+:root {
+  --bg:#fbfbfc; --surface:#ffffff; --fg:#16181d; --fg-2:#4a5058; --muted:#868e99;
+  --line:#e4e7ec; --line-2:#eef0f3;
+  --accent:#2563eb; --accent-soft:#eff5ff;
+  --good:#0f8a4c; --good-soft:#e8f6ee;
+  --bad:#c8332b; --bad-soft:#fdeceb;
+  --warn:#9a6212; --warn-soft:#fdf5e4; --warn-line:#e8c98a;
+  --p1:#dbe8fe; --p2:#2563eb;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#0d0f13; --surface:#14171d; --fg:#e8eaee; --fg-2:#aeb6c2; --muted:#7b8492;
+    --line:#242932; --line-2:#1c2027;
+    --accent:#5b91ff; --accent-soft:#16233d;
+    --good:#3fbf7f; --good-soft:#10281c;
+    --bad:#f0736a; --bad-soft:#2d1614;
+    --warn:#e0a63a; --warn-soft:#2a2113; --warn-line:#584a29;
+    --p1:#1b2c4d; --p2:#3b7bf0;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0d0f13; --surface:#14171d; --fg:#e8eaee; --fg-2:#aeb6c2; --muted:#7b8492;
+  --line:#242932; --line-2:#1c2027; --accent:#5b91ff; --accent-soft:#16233d;
+  --good:#3fbf7f; --good-soft:#10281c; --bad:#f0736a; --bad-soft:#2d1614;
+  --warn:#e0a63a; --warn-soft:#2a2113; --p1:#1b2c4d; --p2:#3b7bf0;
+}
+:root[data-theme="light"] {
+  --bg:#fbfbfc; --surface:#ffffff; --fg:#16181d; --fg-2:#4a5058; --muted:#868e99;
+  --line:#e4e7ec; --line-2:#eef0f3; --accent:#2563eb; --accent-soft:#eff5ff;
+  --good:#0f8a4c; --good-soft:#e8f6ee; --bad:#c8332b; --bad-soft:#fdeceb;
+  --warn:#9a6212; --warn-soft:#fdf5e4; --p1:#dbe8fe; --p2:#2563eb;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  margin:0; background:var(--bg); color:var(--fg);
+  font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+       "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1240px; margin:0 auto; padding:0 24px 72px; }
+
+/* ---------- en-tete ---------- */
+header.top {
+  position:sticky; top:0; z-index:20; margin:0 -24px 4px; padding:0 24px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(1.6) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+header.top .row { display:flex; align-items:center; gap:26px; height:56px; }
+.brand { font-weight:640; letter-spacing:-.015em; font-size:15px; white-space:nowrap; }
+.brand .dot { color:var(--accent); }
+header.top nav { display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+header.top nav::-webkit-scrollbar { display:none; }
+header.top nav a {
+  color:var(--muted); text-decoration:none; font-size:13.5px; font-weight:500;
+  padding:6px 10px; border-radius:7px; white-space:nowrap; transition:.12s;
+}
+header.top nav a:hover { color:var(--fg); background:var(--line-2); }
+header.top nav a.on { color:var(--accent); background:var(--accent-soft); }
+
+/* ---------- titres ---------- */
+h1 { font-size:25px; font-weight:640; letter-spacing:-.02em; margin:26px 0 4px; }
+h2 { font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+     color:var(--muted); margin:34px 0 12px; }
+h3 { font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+     color:var(--muted); margin:0 0 8px; }
+p { margin:0 0 12px; }
+.sub { color:var(--fg-2); font-size:14px; max-width:76ch; }
+.sub.tight { margin-bottom:16px; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+/* ---------- bandeau ---------- */
+.banner {
+  border:1px solid var(--warn-line); border-left:3px solid var(--warn);
+  background:var(--warn-soft); color:var(--fg-2);
+  padding:11px 15px; border-radius:var(--radius); font-size:13.5px;
+  margin:16px 0; line-height:1.5;
+}
+.banner strong { color:var(--warn); font-weight:620; }
+.banner ul { margin:8px 0 0; padding-left:18px; }
+/* Meme bandeau, ton positif : une operation qui a REUSSI ne doit pas porter
+   la couleur d'un avertissement, sinon l'avertissement ne veut plus rien dire. */
+.banner.ok { border-color:var(--good); border-left-color:var(--good);
+             background:var(--good-soft); }
+.banner.ok strong { color:var(--good); }
+
+/* ---------- cartes ---------- */
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr));
+         gap:12px; margin:18px 0 6px; }
+.card {
+  border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px;
+  background:var(--surface); box-shadow:var(--shadow);
+}
+.card .k { color:var(--muted); font-size:11px; font-weight:600;
+           text-transform:uppercase; letter-spacing:.06em; }
+.card .v { font-size:24px; font-weight:600; letter-spacing:-.02em; margin-top:3px;
+           line-height:1.15; }
+.card .n { color:var(--muted); font-size:12px; margin-top:3px; }
+
+/* ---------- tableaux ---------- */
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius);
+          background:var(--surface); box-shadow:var(--shadow); }
+table { width:100%; border-collapse:collapse; font-size:13.5px; }
+th, td { text-align:right; padding:9px 12px; border-bottom:1px solid var(--line-2); }
+thead th {
+  background:var(--surface);
+  color:var(--muted); font-weight:600; font-size:10.5px; letter-spacing:.06em;
+  text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--line);
+}
+/* PAS d'en-tete collant, et c'est un choix, pas un oubli.
+   `.scroll` porte `overflow-x:auto` ; la specification fait alors passer
+   `overflow-y` de `visible` a `auto`, donc .scroll DEVIENT le conteneur de
+   defilement. Un `top:56px` — pense pour se caler sous la barre de navigation
+   de la page — se mesurait des lors depuis le haut DU TABLEAU : l'en-tete
+   descendait de 56 px et recouvrait le premier partant, en permanence. On
+   voyait sa pastille et ses barres depasser, et son « detail » orphelin.
+   Rendre l'en-tete reellement collant imposerait de retirer le defilement
+   horizontal, donc de laisser treize colonnes deborder la page. Entre un
+   confort de lecture et une ligne de donnees invisible, on garde la donnee. */
+table.collante thead th { position:static; }
+tbody tr:last-child td { border-bottom:none; }
+/* LES COURSES QU'ON JOUE. Le programme LONAB est la source de ce qui se mise
+   ici ; le reste du calendrier est du contexte. La distinction doit se lire
+   sans effort, donc elle passe par le FOND de la ligne et une barre a gauche,
+   pas par une etiquette de plus dans une colonne deja chargee. La teinte reste
+   faible : elle doit guider l'oeil, pas concurrencer l'edge, qui est le seul
+   endroit ou la couleur porte un jugement. */
+tbody tr.jouable td { background:var(--accent-soft); }
+tbody tr.jouable td:first-child { box-shadow:inset 3px 0 0 var(--accent); }
+tbody tr.jouable:hover td { background:color-mix(in srgb, var(--accent-soft) 70%, var(--line-2)); }
+.tag.lonab { background:var(--accent); color:#fff; border-color:transparent;
+             font-size:9.5px; letter-spacing:.05em; }
+td.l, th.l { text-align:left; }
+tr.runner:hover td { background:var(--line-2); }
+tr.runner td { padding-top:10px; padding-bottom:10px; }
+.num { display:inline-flex; align-items:center; justify-content:center;
+       min-width:23px; height:23px; border-radius:6px; background:var(--line-2);
+       color:var(--fg-2); font-size:12px; font-weight:620; }
+.nom { font-weight:560; }
+.idx { color:var(--muted); font-size:12.5px; }
+
+/* barre de probabilite : la colonne qui doit se balayer sans lire */
+.bar { position:relative; display:block; min-width:62px; height:22px;
+       border-radius:5px; overflow:hidden; background:var(--line-2); }
+.bar .fill { position:absolute; inset:0 auto 0 0; background:var(--p1); }
+.bar .fill.strong { background:var(--p2); }
+.bar .txt { position:relative; display:block; padding:2px 7px; font-weight:560;
+            font-variant-numeric:tabular-nums; }
+.bar .fill.strong ~ .txt { color:#fff; }
+
+.pos { color:var(--good); font-weight:560; }
+.neg { color:var(--bad); }
+.pill { display:inline-block; padding:2px 8px; border-radius:99px; font-size:11.5px;
+        font-weight:600; letter-spacing:.02em; }
+.pill.go { background:var(--good-soft); color:var(--good); }
+.pill.no { background:var(--line-2); color:var(--muted); }
+.pill.risk { background:var(--bad-soft); color:var(--bad); }
+.tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:99px;
+       border:1px solid var(--line); color:var(--muted); margin-left:6px; }
+
+/* ---------- detail deplie ---------- */
+details { border-top:1px dashed var(--line); background:var(--bg); }
+details summary { cursor:pointer; padding:7px 12px; color:var(--muted);
+                  font-size:12.5px; list-style:none; user-select:none; }
+details summary::-webkit-details-marker { display:none; }
+details summary::before { content:"›"; display:inline-block; width:14px;
+                          transition:transform .15s; font-size:15px; }
+details[open] summary::before { transform:rotate(90deg); }
+details summary:hover { color:var(--accent); }
+.detail { padding:6px 22px 20px; }
+.detail p { margin:7px 0; font-size:13.5px; color:var(--fg-2); }
+.shap { display:grid; grid-template-columns:1fr auto; gap:3px 16px; max-width:620px;
+        margin:8px 0 14px; }
+.shap .lab { font-size:13px; }
+.shap .val { font-variant-numeric:tabular-nums; font-size:13px; font-weight:560; }
+
+/* ---------- formulaires ---------- */
+form.search { display:flex; gap:8px; margin:16px 0 24px; flex-wrap:wrap; }
+input, button, select, textarea {
+  font:inherit; padding:8px 12px; border:1px solid var(--line);
+  border-radius:8px; background:var(--surface); color:var(--fg);
+}
+input:focus, textarea:focus, select:focus {
+  outline:none; border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+button { cursor:pointer; font-weight:560; background:var(--accent); color:#fff;
+         border-color:transparent; padding:8px 16px; }
+button:hover { filter:brightness(1.07); }
+input[type=file] { padding:6px 10px; }
+textarea { width:100%; min-height:230px; resize:vertical;
+           font:13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+pre.exemple { background:var(--surface); border:1px solid var(--line);
+              border-radius:var(--radius); padding:13px 15px; overflow-x:auto;
+              font:12.5px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+              color:var(--fg-2); box-shadow:var(--shadow); }
+code { background:var(--line-2); padding:1.5px 5px; border-radius:5px;
+       font:12.5px ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+/* ---------- divers ---------- */
+ul.liste { list-style:none; padding:0; margin:6px 0; }
+ul.liste li { padding:9px 13px; border:1px solid var(--line); border-radius:9px;
+              background:var(--surface); margin-bottom:7px; font-size:14px;
+              box-shadow:var(--shadow); }
+.cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+        gap:24px; margin-top:8px; }
+.empty { color:var(--muted); padding:28px 0; font-size:14px; }
+.ident { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; font-size:14px;
+         margin:6px 0 14px; }
+.ident .k { color:var(--muted); }
+.arrivee { font-variant-numeric:tabular-nums; font-size:15px; }
+.arrivee b { display:inline-flex; align-items:center; justify-content:center;
+             min-width:32px; height:30px; border:1px solid var(--line);
+             border-radius:8px; margin-right:6px; font-weight:620;
+             background:var(--surface); }
+.arrivee b.hit { border-color:var(--good); color:var(--good); background:var(--good-soft); }
+.arrivee b.miss { border-color:var(--line); color:var(--muted); }
+footer { color:var(--muted); font-size:12.5px; border-top:1px solid var(--line);
+         margin-top:52px; padding-top:18px; line-height:1.6; }
+footer strong { color:var(--fg-2); }
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="row">
+  <span class="brand">racing<span class="dot">·</span>ai</span>
+  <nav><a href="index.html" class="on">Analyses publiées</a><span class="tag" style="margin-left:12px">lecture seule</span></nav>
+</div></header>
+<h1>Analyses publiées</h1><div class="banner ok"><strong>Instantané produit le 13/09/2026 à 13:29</strong> — il y a moins d'une heure. Ces pages ne bougent plus depuis. Les probabilités du modèle restent valables — il ne voit jamais les cotes — mais <strong>l'edge et les mises affichés vieillissent avec le marché</strong>. Avant de miser, vérifier la cote réelle.</div><div class="cards"><div class="card"><div class="k">Courses publiées</div><div class="v">111</div><div class="n">analysées, avec leur prévision figée</div></div><div class="card"><div class="k">Déjà jugées</div><div class="v">884</div><div class="n">arrivée connue</div></div><div class="card"><div class="k">Indice moyen</div><div class="v">-0.010</div><div class="n">0 = aussi bon que ne rien savoir</div></div></div><div class="scroll"><table><thead><tr><th class="l">Date</th><th class="l">Heure</th><th class="l">Hippodrome</th><th class="l">Course</th><th>Partants</th><th class="l">État</th></tr></thead><tbody><tr class="jouable"><td class="l idx">2026-09-14</td><td class="l idx">11:55</td><td class="l idx">Beaumont-De-Lomagne</td><td class="l nom"><a href="manuel_2026-09-14_grand-prix-jean-dumouch-a.html">Grand Prix Jean Dumouch A</a><span class="tag lonab" style="margin:0 0 0 8px">LONAB</span></td><td>14</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">11:58</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C2.html">1ERE ARMEE</a></td><td>5</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">12:36</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C3.html">CREDIT MUTUEL (PRIX DES VOSGES)</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">13:08</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C4.html">CONTADES</a></td><td>7</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class="jouable"><td class="l idx">2026-09-13</td><td class="l idx">13:15</td><td class="l idx">Parislongchamp</td><td class="l nom"><a href="manuel_2026-09-13_super-handicap-de-la-rentree-c.html">Super Handicap De La Rentree C</a><span class="tag lonab" style="margin:0 0 0 8px">LONAB</span></td><td>18</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">13:42</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C5.html">MAXI-FLASH (PRIX AQUARELLISTE)</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">14:02</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C1.html">HOTEL DU CHEVALIER-DU-GUET</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">14:17</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C6.html">PARLEMENT EUROPEEN</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">14:36</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C2.html">PETIT COUVERT</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">14:45</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C1.html">THE IRISH STALLION FARMS EBF BOLD LAD SPRINT HANDICAP</a></td><td>26</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">14:51</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C7.html">ZORN</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">15:15</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C2.html">THE TATTERSALLS IRELAND SUPER AUCTION SALES STAKES</a></td><td>16</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">15:32</td><td class="l idx">Strasbourg</td><td class="l nom"><a href="equidia_2026-09-13_R4C8.html">ALPHONSE BECHTOLD</a></td><td>15</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">15:50</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C3.html">THE MOYGLARE STUD STAKES - WORLD POOL</a></td><td>7</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">15:50</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C4.html">DUBAI RACING CARNIVAL PRIX DU PIN</a></td><td>7</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">16:25</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C4.html">THE BAR ONE RACING FLYING FIVE STAKES - WORLD POOL</a></td><td>18</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">16:25</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C5.html">PRINCE D&#x27;ORANGE</a></td><td>6</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">17:00</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C5.html">THE GOFFS VINCENT O&#x27;BRIEN NATIONAL STAKES - WORLD POOL</a></td><td>8</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">17:00</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C6.html">PLACE D&#x27;ESTIENNE D&#x27;ORVES</a></td><td>14</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">17:35</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C6.html">THE COMER GROUP INTERNATIONAL IRISH ST. LEGER - WORLD POOL</a></td><td>7</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">17:35</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C7.html">LAC</a></td><td>16</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">18:10</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C7.html">THE MOYGLARE ``JEWELS`` BLANDFORD STAKES (GROUP 2)</a></td><td>10</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">18:10</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C8.html">PONTHIEU</a></td><td>16</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">18:43</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C1.html">CARRERA CORRIDA</a></td><td>13</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">18:43</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-13_R1C9.html">PASSAGE DU CHEMIN VERT</a></td><td>15</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">18:45</td><td class="l idx">Curragh (Irlande)</td><td class="l nom"><a href="equidia_2026-09-13_R8C8.html">THE IRISH STALLION FARMS EBF NORTHFIELDS HANDICAP</a></td><td>23</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">19:16</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C2.html">CHICHA DE CURACAVI</a></td><td>10</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">19:48</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C3.html">JORGE BARAONA P. S.</a></td><td>5</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">20:20</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C4.html">LA CUECA BRAVA</a></td><td>13</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">20:50</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C5.html">LA JUANA ROSA</a></td><td>12</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">21:20</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C6.html">IGNACIO URRUTIA DE LA SOTTA S.</a></td><td>10</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">21:50</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C7.html">ALO ALO H.</a></td><td>13</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">22:20</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C8.html">LA CUECA DE LOS POETAS H.</a></td><td>12</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">22:50</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C9.html">LA CONSENTIDA H.</a></td><td>11</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-13</td><td class="l idx">23:20</td><td class="l idx">Santiago (Chili)</td><td class="l nom"><a href="equidia_2026-09-13_R6C10.html">EL FARRERO S.</a></td><td>14</td><td class="l"><span class="pill no">à venir</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">11:07</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C1.html">FINOT (POULAINS)</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">11:42</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C2.html">FINOT (POULICHES)</a></td><td>18</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">12:52</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C4.html">KERYM</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class="jouable"><td class="l idx">2026-09-12</td><td class="l idx">13:15</td><td class="l idx">Paris-Vincennes</td><td class="l nom"><a href="manuel_2026-09-12_criterium-des.html">Criterium Des</a><span class="tag lonab" style="margin:0 0 0 8px">LONAB</span></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">13:28</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C5.html">ACHILLE-FOULD</a></td><td>14</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">14:35</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C1.html">BALLYLINCH STUD IRISH EBF INGABELLE STAKES (LISTED)</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">14:48</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C7.html">MICHEL CHIROL</a></td><td>18</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">15:10</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C2.html">THE IRISH STALLION FARMS EBF SOVEREIGN PATH HANDICAP</a></td><td>21</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">15:37</td><td class="l idx">Auteuil</td><td class="l nom"><a href="equidia_2026-09-12_R3C8.html">ALAIN ET GILLES DE GOULAINE</a></td><td>18</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">15:40</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C1.html">FRANCOIS VERGEZ</a></td><td>5</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">15:45</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C3.html">THE HKJC WORLD POOL GOLDEN FLEECE STAKES (GROUP 1)</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">16:15</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C4.html">THE WORLD POOL BET WITH THE TOTE KILTERNAN STAKES (GROUP 3)</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">16:20</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C2.html">FOUR A CHAUX</a></td><td>13</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">16:55</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C5.html">THE COOLMORE AMERICA `JUSTIFY` MATRON STAKES (GROUP 1)</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">17:00</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C3.html">DIDIER VEZIA</a></td><td>14</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">17:25</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C6.html">THE TONYBET SOLONAWAY STAKES (GROUP 2)</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">17:35</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C4.html">CLUB PILATES LE BOUSCAT - PRIX JEAN CRUSE</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">18:00</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C7.html">THE ROYAL BAHRAIN IRISH CHAMPION STAKES (GROUP 1)</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">18:15</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C5.html">SAINT-LAURENT</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">18:35</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C8.html">THE IRISH STALLION FARMS EBF PETINGO HANDICAP</a></td><td>26</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">18:48</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C6.html">CHATEAU GRANDIS</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">19:10</td><td class="l idx">Leopardstown (Irlande)</td><td class="l nom"><a href="equidia_2026-09-12_R5C9.html">THE WORLD POOL BET WITH TOTE AUTUMN FILLIES HANDICAP</a></td><td>19</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">19:20</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C7.html">GUY CHANCELIER</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-12</td><td class="l idx">19:54</td><td class="l idx">Bordeaux-Le Bouscat</td><td class="l nom"><a href="equidia_2026-09-12_R4C8.html">FRENCH ARABIAN BREEDERS&#x27; CHALLENGE SPRINT</a></td><td>6</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">10:30</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C1.html">SPORTIVITE</a></td><td>7</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">11:00</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C2.html">JOYEUSE</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">11:30</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C3.html">NOBLE MISSION</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">12:02</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C4.html">KIKKULI</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">12:37</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C5.html">FRANKEL</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">13:10</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C1.html">ASTARIA</a></td><td>7</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">13:10</td><td class="l idx">Mons (Belgique)</td><td class="l nom"><a href="equidia_2026-09-11_R2C6.html">JUNIOR START CUP</a></td><td>6</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">13:45</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C2.html">ORTIE BLANCHE</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">14:19</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C3.html">BEND&#x27;OR</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">14:54</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C4.html">TURENNE</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">15:28</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C5.html">KALDOUN</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">16:03</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C6.html">FITERARI</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">16:20</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C1.html">COULAINES</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">16:38</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C7.html">LIEU FERAL</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">16:55</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C2.html">BERNARD CHAUSSE</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">17:13</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C8.html">LIEU PLAISANT</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">17:30</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C3.html">SAINT-SATURNIN</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">17:48</td><td class="l idx">Saint-Cloud</td><td class="l nom"><a href="equidia_2026-09-11_R4C9.html">LIEU DIEU</a></td><td>14</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">18:05</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C4.html">CLAUDE BROSSEAU</a></td><td>7</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class="jouable"><td class="l idx">2026-09-11</td><td class="l idx">18:15</td><td class="l idx">Paris-Vincennes Nocturne</td><td class="l nom"><a href="manuel_2026-09-11_prix-algorah.html">Prix Algorah</a><span class="tag lonab" style="margin:0 0 0 8px">LONAB</span></td><td>14</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">18:40</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C5.html">SOCIETE DES COURSES DE LA CHARTRE-SUR-LE-LOIRE</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">19:15</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C6.html">MONT BLANC</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-11</td><td class="l idx">19:53</td><td class="l idx">Du Mans</td><td class="l nom"><a href="equidia_2026-09-11_R5C7.html">JEAN COUTURIE</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class="jouable"><td class="l idx">2026-09-10</td><td class="l idx">11:55</td><td class="l idx">Parislongchamp</td><td class="l nom"><a href="manuel_2026-09-10_prix-carrus.html">Prix Carrus</a><span class="tag lonab" style="margin:0 0 0 8px">LONAB</span></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">14:30</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C2.html">PARC DES PRINCES</a></td><td>7</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">15:05</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C3.html">LORMOY</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">15:40</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C1.html">NURSERY HANDICAP (CLASS 5) (2ND)</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">15:40</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C4.html">GLADIATEUR</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">16:13</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C2.html">RESTRICTED MAIDEN STAKES (CLASS 4) (GBB RACE)</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">16:15</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C5.html">CRAON</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">16:48</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C3.html">MAIDEN STAKES (CLASS 4) (GBB RACE) (1ST)</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">16:50</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C6.html">GRAND PRIX DES ANGLO-ARABES</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">17:23</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C4.html">SASCO SAUCES BIRTHDAY HANDICAP (CLASS 6) (DIV I)(3RD)</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">17:25</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C7.html">COUR DU CHEMIN VERT</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">17:58</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C5.html">SASCO SAUCES BIRTHDAY HANDICAP (CLASS 6) (DIV II)(3RD)</a></td><td>11</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">18:00</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C8.html">SAINT-NICOLAS</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">18:33</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C6.html">HANDICAP (CLASS 4)</a></td><td>6</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">18:33</td><td class="l idx">Longchamp</td><td class="l nom"><a href="equidia_2026-09-10_R1C9.html">RUE DU CHEMIN VERT</a></td><td>16</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">19:05</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C7.html">HANDICAP (CLASS 6)</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">19:35</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C8.html">HANDICAP (CLASS 6)</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">20:05</td><td class="l idx">Lingfield Park</td><td class="l nom"><a href="equidia_2026-09-10_R5C9.html">GET RACEDAY READY HANDICAP (CLASS 6)</a></td><td>10</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">20:45</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C1.html">REINE D&#x27;AMOUR</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">21:11</td><td class="l idx">Woodbine</td><td class="l nom"><a href="equidia_2026-09-10_R7C1.html">MAIDEN SPECIAL WEIGHT 1000</a></td><td>6</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">21:15</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C2.html">RANCHO CHICO H.</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">21:41</td><td class="l idx">Woodbine</td><td class="l nom"><a href="equidia_2026-09-10_R7C2.html">CLAIMING 1700</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">21:45</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C3.html">ROCK ON H.</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">22:13</td><td class="l idx">Woodbine</td><td class="l nom"><a href="equidia_2026-09-10_R7C3.html">CLAIMING 1200</a></td><td>9</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">22:15</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C4.html">WOLF S.</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">22:43</td><td class="l idx">Woodbine</td><td class="l nom"><a href="equidia_2026-09-10_R7C4.html">CLAIMING 1000</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">22:45</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C5.html">RED FLASH H.</a></td><td>12</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">23:15</td><td class="l idx">Chile</td><td class="l nom"><a href="equidia_2026-09-10_R6C6.html">REALKO H.</a></td><td>15</td><td class="l"><span class="pill go">résultat connu</span></td></tr><tr class=""><td class="l idx">2026-09-10</td><td class="l idx">23:17</td><td class="l idx">Woodbine</td><td class="l nom"><a href="equidia_2026-09-10_R7C5.html">MAIDEN OPTIONAL CLAIMING 1300</a></td><td>8</td><td class="l"><span class="pill go">résultat connu</span></td></tr></tbody></table></div><p class="sub" style="margin-top:24px">Pages en <strong>lecture seule</strong>. Saisir une arrivée, rafraîchir les cotes ou importer une carte demande l'application complète, sur l'ordinateur.</p>
+<footer>
+Outil d'analyse local. Les <strong>probabilités</strong> sont calibrées et mesurées ;
+les <strong>indices</strong> (fiabilité, performance, confiance) sont des constructions
+dont la formule est dans <code>racing/models/model.py</code>.
+<strong>Ce système n'a pas démontré de rentabilité</strong> — voir §12 du brief.
+Ce n'est pas un conseil de mise.
+</footer>
+</div></body></html>
